@@ -1,21 +1,72 @@
-﻿// ConsoleXFSReader.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
-
-#include "pch.h"
+﻿#include "pch.h"
 #include <iostream>
+#include <windows.h>
+#include <wtypes.h>
+
+#include "MyStorage.h"
+#include "Common.h"
+#include "LibFileSystem.h"
+#include "FileSystemExportConst.h"
+#include "OtherFunc.h"
 
 int main()
 {
-    std::cout << "Hello World!\n"; 
+	setlocale(LC_ALL, "Russian");
+	bool noError = true;
+
+	//StorageClass *dataStorage = new SimpleStorageClass(L"\\\\.\\F:"); - флешка
+
+	StorageClass *dataStorage = NULL;
+	dataStorage = new SimpleStorageClass(L"\\\\.\\D:\\CentOS\\CentOS 64-bit-flat.vmdk"); //виртуальный диск
+
+	noError = dataStorage->Open();
+
+	if (!noError) 
+	{ 
+		dataStorage->Close();
+		cout << "Ошибка открытия диска/файла.\nВыполнение программы завершено!\n";
+		system("PAUSE");
+		return -1;
+	}
+
+	StorageType t = dataStorage->GetType();
+	ULONGLONG size = dataStorage->GetDataSize();
+
+	cout << "Открыт носитель типа ";
+	if (static_cast<underlying_type<StorageType>::type>(t) == 0) cout << "LogicalDrive. ";
+	else if (static_cast<underlying_type<StorageType>::type>(t) == 1) cout << "ImageFile. ";
+	cout << "Размер носителя - "<< size << " байт." <<endl;
+
+	FileSystemClass *fileSystem = CreateFileSystem(FileSystemTypeEnum::XFS, dataStorage);
+	if (fileSystem->GetError())
+	{
+		cout << "Ошибка с файловой системой! \nВыполнение программы завершено!\n" << endl;
+		cin.get();
+		system("PAUSE");
+		return -1;
+	}
+	cout << endl;
+	cout << "Информация о файловой системе: " << endl;
+	fileSystem->ShowInfo();
+
+	cout << "Введите номер блока, который необходимо считать. Введите 0, чтобы пропустить считывание." << endl;
+	ULONGLONG clusterid = 0;
+	cin >> clusterid;
+	while (clusterid < 0 || clusterid >= fileSystem->GetTotalClusters()) {
+		cout << "Номер блока не должен быть меньше 0 и больше " << dec << fileSystem->GetTotalClusters() << endl;
+		cin >> clusterid;
+	}
+
+	if (clusterid) {
+		BYTE * buffer = new BYTE[fileSystem->GetBytesPerCluster()];
+		ULONGLONG startoffset = 0;
+		DWORD result = fileSystem->ReadClustersByNumber(clusterid - 1, 1, buffer, &startoffset);
+		ShowHexData(buffer, fileSystem->GetBytesPerCluster());
+	}
+
+	dataStorage->Close();
+
+	system("PAUSE");
+
+	return 0;
 }
-
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
