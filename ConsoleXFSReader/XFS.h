@@ -3,38 +3,17 @@
 #define XFSH
 //---------------------------------------------------------------------------
 #include "Common.h"
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
-const WORD XFS_MaxFileNameLength = 255;
-const DWORD XFSP_MaxNodeSize = 32768;
-const DWORD XFS_MaxBTreeCacheSize = 0x400000; // Максимальный размер кэша
-const DWORD XFS_MaxDirSize = 0x10000; // Максимальный размер каталога (размер резервируемой памяти)
+#include "Global.h"
+#include "XFS_objects.h"
 //---------------------------------------------------------------------------
 #pragma warn -8056
-const ULONGLONG XFS_TimeReference = 0x153B281E0FB4000; // 01.01.1904 00:00:00,00
+//const ULONGLONG XFS_TimeReference = 0x153B281E0FB4000; // 01.01.1904 00:00:00,00
 #pragma warn .8056
 //---------------------------------------------------------------------------
+const WORD XFS_SBSize = 512;
 #pragma pack(push, 1)
-
-typedef struct XFS_ExtentDescriptorStruct
-{
-	DWORD  startBlock;   // Номер первого кластера
-	DWORD  blockCount;   // Количество кластеров в экстенте
-
-} XFS_ExtentDescriptor, *PXFS_ExtentDescriptor;
 //---------------------------------------------------------------------------
-typedef XFS_ExtentDescriptor XFS_ExtentRecord[8];
-//---------------------------------------------------------------------------
-typedef struct XFS_ForkDataStruct
-{
-	ULONGLONG logicalSize;   // Размер данных
-	DWORD  clumpSize;
-	DWORD  totalBlocks;           // Общее количество выделенных кластеров
-	XFS_ExtentRecord  extents;   // Описание экстентов
-
-} XFS_ForkData, *PXFS_ForkData;
-
-typedef DWORD XFS_CatalogNodeID;
+//FileSystemInfo
 //---------------------------------------------------------------------------
 typedef struct XFS_SuperBlockStruct
 {
@@ -68,6 +47,7 @@ typedef struct XFS_SuperBlockStruct
 	//XFS_ForkData   allocationFile;                          // 0x70
 
 } XFS_SuperBlock, *PXFS_SuperBlock;
+//---------------------------------------------------------------------------
 
 #pragma pack(pop)
 //---------------------------------------------------------------------------
@@ -77,6 +57,7 @@ private:
 
 	WORD InodeSize;
 	WORD InodesPerBlock;
+	DWORD AG_count;
 
 protected:
 
@@ -90,7 +71,57 @@ public:
 	XFS_FileSystemClass(XFS_FileSystemClass *srcFileSystem);
 	XFS_FileSystemClass(FileSystemClass *srcFileSystem);
 
+	LONGLONG GetOffsetByInodeId(ULONGLONG inodeId);
+	//PXFS_ExtentDescriptor GetExtentDescr(ULONGLONG startOffset);
+
+	virtual BlockIterator *GetIterator();
+
 	virtual ~XFS_FileSystemClass();
 };
+
+//Итератор по блокам абстрактной файловой системы
 //---------------------------------------------------------------------------
+class BlockIterator : public Iterator<BinaryBlock>
+{
+protected:
+
+	FileSystemClass* FileSystem;
+	ULONGLONG StartIndex;
+	ULONGLONG CurrentIndex;
+	DWORD BytesPerBlock;
+	ULONGLONG TotalNumberOfBlocks;
+	DWORD ReadBlockCount;
+	DWORD StepSizeInBlocks;
+	DWORD ReadBlockSizeInBytes;
+
+public:
+
+	BlockIterator(
+		FileSystemClass* FileSystem,
+		ULONGLONG StartIndex,
+		DWORD ReadBlockCount
+	);
+	
+	ULONGLONG GetCurrentIndex() { return CurrentIndex; }
+	virtual void First() { CurrentIndex = StartIndex; }
+	virtual void Next() { CurrentIndex += StepSizeInBlocks; }
+	virtual bool IsDone() const { return (CurrentIndex >= TotalNumberOfBlocks); }
+	virtual BinaryBlock GetCurrent() const;
+};
+//---------------------------------------------------------------------------
+//Декоратор-итератор по супер-блокам
+class SB_IteratorDecorator : public Iterator<BinaryBlock>
+{
+protected:
+	Iterator<BinaryBlock> *It;
+
+public:
+	SB_IteratorDecorator(BlockIterator *it) { It = it; }
+	virtual ~SB_IteratorDecorator() { delete It; }
+	virtual void First() { It->First(); }
+	virtual void Next() ;
+	virtual bool IsDone() const { return It->IsDone(); }
+	virtual BinaryBlock GetCurrent() const { return It->GetCurrent(); }
+};
+
 #endif

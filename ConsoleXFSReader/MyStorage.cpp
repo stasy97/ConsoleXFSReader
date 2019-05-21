@@ -117,6 +117,7 @@ StorageClass * __fastcall StorageClass::OpenStorage(const WCHAR *fileName)
 	return dataStorage;
 }
 //---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 StorageClass::StorageClass()
 {
 	Type = StorageType::ImageFile;
@@ -212,6 +213,7 @@ SimpleStorageClass::SimpleStorageClass(const WCHAR *fileName) : StorageClass()
 
 		if (DataSize != 0) {
 
+			cout << "DataSize = "<< DataSize;
 			Fragments.push_back(StorageFragmentClass(fileName, 0, DataSize));
 		}
 	}
@@ -259,7 +261,7 @@ bool SimpleStorageClass::Open()
 	{
 		storageFragment->Open();
 		DataSize += storageFragment->GetDataSize();
-		//std::cout <<endl<<"DataSize in fragment = "<<DataSize << "..."<< std::endl;
+		std::cout <<endl<<"DataSize in fragment = "<<DataSize << "...";
 	}
 
 	return PrepareFragmentIndex();

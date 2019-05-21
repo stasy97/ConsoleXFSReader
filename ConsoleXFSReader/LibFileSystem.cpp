@@ -9,6 +9,7 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
+//Фабричный метод
 //---------------------------------------------------------------------------
 FileSystemClass* CreateFileSystem(FileSystemTypeEnum fsType, StorageClass *dataStorage, ULONGLONG startOffset, ULONGLONG diskSize, WORD sectorSize)
 {

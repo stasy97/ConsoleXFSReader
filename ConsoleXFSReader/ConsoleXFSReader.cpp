@@ -1,4 +1,7 @@
-﻿#include "pch.h"
+﻿// XFS_lib.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
+//
+
+#include "pch.h"
 #include <iostream>
 #include <windows.h>
 #include <wtypes.h>
@@ -8,6 +11,12 @@
 #include "LibFileSystem.h"
 #include "FileSystemExportConst.h"
 #include "OtherFunc.h"
+#include "XFS.h"
+
+//WCHAR *fileName1 = L"\\\\.\\PhysicalDrive0"; // \\.\PhysicalDrive0, \\.\PhysicalDrive1 и т. д.
+//WCHAR *fileName = L"\\\\.\\G:"; // \\.\C:, \\.\D: и т. д.
+// Либо просто имя файла
+
 
 int main()
 {
@@ -21,8 +30,8 @@ int main()
 
 	noError = dataStorage->Open();
 
-	if (!noError) 
-	{ 
+	if (!noError)
+	{
 		dataStorage->Close();
 		cout << "Ошибка открытия диска/файла.\nВыполнение программы завершено!\n";
 		system("PAUSE");
@@ -35,7 +44,7 @@ int main()
 	cout << "Открыт носитель типа ";
 	if (static_cast<underlying_type<StorageType>::type>(t) == 0) cout << "LogicalDrive. ";
 	else if (static_cast<underlying_type<StorageType>::type>(t) == 1) cout << "ImageFile. ";
-	cout << "Размер носителя - "<< size << " байт." <<endl;
+	cout << "Размер носителя - " << size << " байт." << endl;
 
 	FileSystemClass *fileSystem = CreateFileSystem(FileSystemTypeEnum::XFS, dataStorage);
 	if (fileSystem->GetError())
@@ -49,24 +58,33 @@ int main()
 	cout << "Информация о файловой системе: " << endl;
 	fileSystem->ShowInfo();
 
-	cout << "Введите номер блока, который необходимо считать. Введите 0, чтобы пропустить считывание." << endl;
-	ULONGLONG clusterid = 0;
-	cin >> clusterid;
-	while (clusterid < 0 || clusterid >= fileSystem->GetTotalClusters()) {
-		cout << "Номер блока не должен быть меньше 0 и больше " << dec << fileSystem->GetTotalClusters() << endl;
-		cin >> clusterid;
-	}
+	//cout << "Введите номер блока, который необходимо считать. Введите 0, чтобы пропустить считывание." << endl;
+	//ULONGLONG clusterid = 0;
+	//cin >> clusterid;
+	//while (clusterid < 0 || clusterid >= fileSystem->GetTotalClusters()) {
+	//	cout << "Номер блока не должен быть меньше 0 и больше " << dec << fileSystem->GetTotalClusters() << endl;
+	//	cin >> clusterid;
+	//}
 
-	if (clusterid) {
-		BYTE * buffer = new BYTE[fileSystem->GetBytesPerCluster()];
-		ULONGLONG startoffset = 0;
-		DWORD result = fileSystem->ReadClustersByNumber(clusterid - 1, 1, buffer, &startoffset);
-		ShowHexData(buffer, fileSystem->GetBytesPerCluster());
+	//if (clusterid) {
+	//	BYTE * buffer = new BYTE[fileSystem->GetBytesPerCluster()];
+	//	ULONGLONG startoffset = 0;
+	//	DWORD result = fileSystem->ReadClustersByNumber(clusterid - 1, 1, buffer, &startoffset);
+	//	ShowHexData(buffer, fileSystem->GetBytesPerCluster());
+	//}
+
+
+	//Итератор по блокам
+	BlockIterator *it = fileSystem->GetIterator();
+	
+	cout << "\t Iterate SuperBlocks."<< endl;
+	//Итератор по супер-блокам (декоратор)
+	SB_IteratorDecorator * SB_iterator = new SB_IteratorDecorator(it);
+	for (SB_iterator->First(); !SB_iterator->IsDone(); SB_iterator->Next())
+	{		
 	}
 
 	dataStorage->Close();
-
-	system("PAUSE");
-
+	    
 	return 0;
 }

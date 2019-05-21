@@ -155,17 +155,22 @@
   <ItemGroup>
     <ClInclude Include="Common.h" />
     <ClInclude Include="FileSystemExportConst.h" />
+    <ClInclude Include="Global.h" />
     <ClInclude Include="LibFileSystem.h" />
     <ClInclude Include="MyStorage.h" />
+    <ClInclude Include="NTFS.h" />
     <ClInclude Include="OtherFunc.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="XFS.h" />
+    <ClInclude Include="XFS_objects.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="ConsoleXFSReader.cpp" />
+    <ClCompile Include="Global.cpp" />
     <ClCompile Include="LibFileSystem.cpp" />
     <ClCompile Include="MyStorage.cpp" />
+    <ClCompile Include="NTFS.cpp" />
     <ClCompile Include="OtherFunc.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -174,6 +179,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="XFS.cpp" />
+    <ClCompile Include="XFS_objects.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
