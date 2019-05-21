@@ -22,10 +22,9 @@ int main()
 {
 	setlocale(LC_ALL, "Russian");
 	bool noError = true;
-
-	//StorageClass *dataStorage = new SimpleStorageClass(L"\\\\.\\F:"); - флешка
-
 	StorageClass *dataStorage = NULL;
+
+	//dataStorage = new SimpleStorageClass(L"\\\\.\\F:"); // флешка
 	dataStorage = new SimpleStorageClass(L"\\\\.\\D:\\CentOS\\CentOS 64-bit-flat.vmdk"); //виртуальный диск
 
 	noError = dataStorage->Open();
@@ -82,9 +81,14 @@ int main()
 	SB_IteratorDecorator * SB_iterator = new SB_IteratorDecorator(it);
 	for (SB_iterator->First(); !SB_iterator->IsDone(); SB_iterator->Next())
 	{		
+		//Внутри Next() выводится комментарий для сравнения кол-ва суперблоков, который нашел декторатор, 
+															//с кол-вом в информации о ФС (в методе выше)
+		//Полученные значения совпадают
 	}
 
 	dataStorage->Close();
-	    
+	   
+	system("PAUSE");
+
 	return 0;
 }

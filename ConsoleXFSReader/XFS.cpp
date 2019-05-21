@@ -66,13 +66,14 @@ XFS_FileSystemClass::XFS_FileSystemClass(StorageClass *dataStorage, ULONGLONG st
 }
 //---------------------------------------------------------------------------
 void XFS_FileSystemClass::ShowInfo() {
-	 cout << "\n" << "BlockSize " << BytesPerCluster << " (0x"<< std::hex <<BytesPerCluster << ")" << endl;
-	 cout << "BytesPerSector " << BytesPerSector << " (0x" << std::hex << BytesPerSector << ")" << endl;
-	 cout << "SectorsPerCluster " << SectorsPerCluster << endl;
-	 cout << "TotalBlocks " << TotalClusters << " (0x" << std::hex << TotalClusters << ")" << endl;
-	 cout << "TotalSectors " << TotalSectors << endl;
-	 cout << "InodeSize " << InodeSize << " (0x" << std::hex << InodeSize << ")" << endl;
-	 cout << "InodesPerBlock " << InodesPerBlock << " (0x" << std::hex << InodesPerBlock << ")" << endl;
+	 cout << "\n" << "BlockSize " << dec << BytesPerCluster << " (0x"<< std::hex <<BytesPerCluster << ")" << endl;
+	 cout << "BytesPerSector " << dec << BytesPerSector << " (0x" << std::hex << BytesPerSector << ")" << endl;
+	 cout << "SectorsPerCluster " << dec << SectorsPerCluster << endl;
+	 cout << "TotalBlocks " << dec << TotalClusters << " (0x" << std::hex << TotalClusters << ")" << endl;
+	 cout << "TotalSectors " << dec << TotalSectors << endl;
+	 cout << "InodeSize " << dec << InodeSize << " (0x" << std::hex << InodeSize << ")" << endl;
+	 cout << "InodesPerBlock " << dec << InodesPerBlock << " (0x" << std::hex << InodesPerBlock << ")" << endl;
+	 cout << "Number of superBlocks " << dec <<AG_count << endl;
 
 }
 //---------------------------------------------------------------------------

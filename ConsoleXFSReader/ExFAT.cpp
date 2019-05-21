@@ -1,15 +1,15 @@
-#include "NTFS.h"
+#include "ExFAT.h"
 
-//------------------NTFS_FileSystem---------------------------------------------
+//------------------ExFAT_FileSystem---------------------------------------------
 
-void NTFS_FileSystemClass::Init(StorageClass *dataStorage, ULONGLONG startOffset, ULONGLONG diskSize, WORD sectorSize, DWORD clusterSize)
+void ExFAT_FileSystemClass::Init(StorageClass *dataStorage, ULONGLONG startOffset, ULONGLONG diskSize, WORD sectorSize, DWORD clusterSize)
 {
 	DWORD bytesRead;
 	BYTE buffer[1024];
 	ULARGE_INTEGER tempOffset;
 	ULONG result;
 
-	PNTFSBootRecord pBootRecord;
+	PExFATBootRecord pBootRecord;
 
 	ClearError();
 
@@ -21,48 +21,48 @@ void NTFS_FileSystemClass::Init(StorageClass *dataStorage, ULONGLONG startOffset
 		return;
 	}
 
-	Type = FileSystemTypeEnum::NTFS;
+	Type = FileSystemTypeEnum::ExFAT;
 
-	pBootRecord = (PNTFSBootRecord)buffer;
+	pBootRecord = (PExFATBootRecord)buffer;
 
 	Storage = dataStorage;
 	StartOffset = startOffset;
 
 	OemName = pBootRecord->OEMName;
-	BytesPerSector = pBootRecord->BytesPerSector;
-	SectorsPerCluster = pBootRecord->SectorsPerCluster;
+	TotalSectors = pBootRecord->VolumeLength;
+	BytesPerSector = std::pow(2, pBootRecord->BytesPerSectorShift);
+	SectorsPerCluster = std::pow(2, pBootRecord->SectorsPerClusterShift);
 	BytesPerCluster = BytesPerSector * SectorsPerCluster;
-	TotalSectors = pBootRecord->TotalSectors;
-	TotalClusters = TotalSectors / SectorsPerCluster;
-
+	TotalClusters = pBootRecord->ClustersCount;
+	
 }
 //---------------------------------------------------------------------------
-NTFS_FileSystemClass::NTFS_FileSystemClass(NTFS_FileSystemClass *srcFileSystem) : FileSystemClass(srcFileSystem)
+ExFAT_FileSystemClass::ExFAT_FileSystemClass(ExFAT_FileSystemClass *srcFileSystem) : FileSystemClass(srcFileSystem)
 {
 	// Объект Storage создается инициализируется вызовом FileSystemClass(srcFileSystem)
 	Init(Storage, srcFileSystem->GetStartOffset(), 0, srcFileSystem->GetBytesPerSector());
 }
 //---------------------------------------------------------------------------
-NTFS_FileSystemClass::NTFS_FileSystemClass(FileSystemClass *srcFileSystem) : FileSystemClass(srcFileSystem)
+ExFAT_FileSystemClass::ExFAT_FileSystemClass(FileSystemClass *srcFileSystem) : FileSystemClass(srcFileSystem)
 {
 	// Объект Storage создается инициализируется вызовом FileSystemClass(srcFileSystem)
 	Init(Storage, srcFileSystem->GetStartOffset(), 0, srcFileSystem->GetBytesPerSector());
 }
 //---------------------------------------------------------------------------
-NTFS_FileSystemClass::NTFS_FileSystemClass(StorageClass *dataStorage, ULONGLONG startOffset, ULONGLONG diskSize, WORD sectorSize)
+ExFAT_FileSystemClass::ExFAT_FileSystemClass(StorageClass *dataStorage, ULONGLONG startOffset, ULONGLONG diskSize, WORD sectorSize)
 {
 	Init(dataStorage, startOffset, diskSize, sectorSize);
 }
 //---------------------------------------------------------------------------
-void NTFS_FileSystemClass::ShowInfo() {
-	cout << "\n" << "BlockSize " << dec <<BytesPerCluster << " (0x" << std::hex << BytesPerCluster << ")" << endl;
-	cout << "BytesPerSector " << dec << BytesPerSector << " (0x" << std::hex << BytesPerSector << ")" << endl;
+void ExFAT_FileSystemClass::ShowInfo() {
+	cout << "\n" << "BlockSize " << dec << BytesPerCluster << endl;
+	cout << "BytesPerSector " << dec << BytesPerSector << endl;
 	cout << "SectorsPerCluster " << dec << SectorsPerCluster << endl;
-	cout << "TotalBlocks " << dec << TotalClusters << " (0x" << std::hex << TotalClusters << ")" << endl;
+	cout << "TotalBlocks " << dec << TotalClusters << endl;
 	cout << "TotalSectors " << dec << TotalSectors << endl;
 }
 //---------------------------------------------------------------------------
-NTFS_FileSystemClass::~NTFS_FileSystemClass()
+ExFAT_FileSystemClass::~ExFAT_FileSystemClass()
 {
-
 }
+

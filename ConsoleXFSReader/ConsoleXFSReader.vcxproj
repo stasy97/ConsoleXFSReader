@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
+    <ClInclude Include="ExFAT.h" />
     <ClInclude Include="FileSystemExportConst.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="LibFileSystem.h" />
@@ -167,6 +168,7 @@
   <ItemGroup>
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="ConsoleXFSReader.cpp" />
+    <ClCompile Include="ExFAT.cpp" />
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="LibFileSystem.cpp" />
     <ClCompile Include="MyStorage.cpp" />

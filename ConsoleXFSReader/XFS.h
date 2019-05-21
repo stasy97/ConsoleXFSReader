@@ -118,7 +118,7 @@ protected:
 public:
 	SB_IteratorDecorator(BlockIterator *it) { It = it; }
 	virtual ~SB_IteratorDecorator() { delete It; }
-	virtual void First() { It->First(); }
+	virtual void First() { It->First(); cout << "XFSB!" << endl; }
 	virtual void Next() ;
 	virtual bool IsDone() const { return It->IsDone(); }
 	virtual BinaryBlock GetCurrent() const { return It->GetCurrent(); }

@@ -25,6 +25,8 @@ enum class StorageType : int
 enum class FileSystemTypeEnum : int
 {
 	XFS,
+	NTFS,
+	ExFAT,
 	FS_None,
 	FS_Error,
 	FS_Debug
